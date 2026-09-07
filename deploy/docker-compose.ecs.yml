@@ -1,0 +1,59 @@
+# footprint ECS：API 直接监听 3000 端口（与 bf-kitchen 8000 同机共存）
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-footprint}
+      MYSQL_USER: ${DB_USER:-footprint}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - /data/footprint/mysql:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: ${FOOTPRINT_IMAGE:-footprint-api:ecs}
+    env_file:
+      - .env.ecs
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_URL: mysql://${DB_USER:-footprint}:${DB_PASSWORD}@mysql:3306/${DB_NAME:-footprint}
+      JWT_SECRET: ${JWT_SECRET}
+      WX_APPID: ${WX_APPID}
+      WX_SECRET: ${WX_SECRET}
+      DEV_MODE: ${DEV_MODE:-false}
+      TENCENT_MAP_KEY: ${TENCENT_MAP_KEY:-}
+      UPLOAD_MODE: ${UPLOAD_MODE:-local}
+      UPLOAD_DIR: ${UPLOAD_DIR:-/data/uploads}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL}
+      OSS_REGION: ${OSS_REGION:-}
+      OSS_BUCKET: ${OSS_BUCKET:-}
+      OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID:-}
+      OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET:-}
+      OSS_CDN_DOMAIN: ${OSS_CDN_DOMAIN:-}
+    volumes:
+      - /data/footprint/uploads:/data/uploads
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/health',(r)=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

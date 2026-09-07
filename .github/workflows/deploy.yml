@@ -1,0 +1,91 @@
+name: Deploy footprint API
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  ECS_PORT: ${{ secrets.ECS_PORT || '22' }}
+  ECS_DEPLOY_DIR: ${{ vars.ECS_DEPLOY_DIR || '/opt/footprint-deploy' }}
+  ECS_ENV_FILE: ${{ vars.ECS_ENV_FILE || '/opt/footprint-deploy/deploy/.env.ecs' }}
+  ECS_COMPOSE_FILE: ${{ vars.ECS_COMPOSE_FILE || '/opt/footprint-deploy/deploy/docker-compose.ecs.yml' }}
+  ECS_SSH_KEEPALIVE_OPTS: "-o ServerAliveInterval=20 -o ServerAliveCountMax=6 -o TCPKeepAlive=yes -o ConnectTimeout=20 -o ConnectionAttempts=3"
+
+jobs:
+  deploy:
+    name: Build and deploy API to ECS
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: footprint-api-deploy
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Prepare deployment archives
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_SHA::12}"
+          {
+            echo "DEPLOY_FILES_TAR=footprint-deploy-files-${tag}.tgz"
+            echo "SOURCE_TAR=footprint-source-${tag}.tgz"
+          } >> "$GITHUB_ENV"
+
+      - name: Prepare SSH key
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.ECS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p "$ECS_PORT" "${{ secrets.ECS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync source and deploy files to ECS
+        run: |
+          set -euo pipefail
+          read -r -a ssh_opts <<< "$ECS_SSH_KEEPALIVE_OPTS"
+          deploy_tar="$RUNNER_TEMP/$DEPLOY_FILES_TAR"
+          source_tar="$RUNNER_TEMP/$SOURCE_TAR"
+          tar -czf "$deploy_tar" deploy scripts/install-ecs.sh scripts/update-ecs.sh scripts/deploy-github-ecs.sh scripts/uninstall-ecs.sh scripts/push-env-ecs.sh
+          tar -czf "$source_tar" api/Dockerfile api/package.json api/package-lock.json api/tsconfig.json api/prisma api/src
+          ssh "${ssh_opts[@]}" -p "$ECS_PORT" "${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}" "mkdir -p '$ECS_DEPLOY_DIR'"
+          scp "${ssh_opts[@]}" -P "$ECS_PORT" "$deploy_tar" "${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}:$ECS_DEPLOY_DIR/$DEPLOY_FILES_TAR"
+          scp "${ssh_opts[@]}" -P "$ECS_PORT" "$source_tar" "${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}:$ECS_DEPLOY_DIR/$SOURCE_TAR"
+          ssh "${ssh_opts[@]}" -p "$ECS_PORT" "${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}" \
+            "set -euo pipefail; cd '$ECS_DEPLOY_DIR' && tar -xzf '$DEPLOY_FILES_TAR' && rm -rf api && tar -xzf '$SOURCE_TAR' && docker build -t footprint-api:ecs api && rm -f '$DEPLOY_FILES_TAR' '$SOURCE_TAR'"
+
+      - name: Deploy on ECS
+        run: |
+          set -euo pipefail
+          read -r -a ssh_opts <<< "$ECS_SSH_KEEPALIVE_OPTS"
+          ssh "${ssh_opts[@]}" -p "$ECS_PORT" "${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}" \
+            "set -euo pipefail; cd '$ECS_DEPLOY_DIR' && \
+              ENV_FILE='$ECS_ENV_FILE' \
+              COMPOSE_FILE='$ECS_COMPOSE_FILE' \
+              REPO_ROOT='$ECS_DEPLOY_DIR' \
+              bash scripts/update-ecs.sh"
+
+  notify:
+    name: Notify Feishu deploy result
+    needs: deploy
+    if: |
+      always() &&
+      needs.deploy.result != 'skipped' &&
+      (needs.deploy.result == 'success' || needs.deploy.result == 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: .github/actions/feishu-deploy-notify
+          sparse-checkout-cone-mode: true
+
+      - name: Notify Feishu deploy result
+        uses: ./.github/actions/feishu-deploy-notify
+        with:
+          status: ${{ needs.deploy.result == 'success' && 'success' || 'failure' }}
+          project_name: Footprint API
+          job_name: deploy
+        env:
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}

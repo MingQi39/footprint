@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/timeline/timeline",
+    "pages/calendar/calendar",
+    "pages/stats/stats",
+    "pages/mine/mine",
+    "pages/search/search",
+    "pages/checkin/checkin",
+    "pages/detail/detail"
+  ],
+  "window": {
+    "navigationBarTitleText": "足迹地图",
+    "navigationBarBackgroundColor": "#1a5fb4",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f7fb"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#8a94a6",
+    "selectedColor": "#1a5fb4",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "地图" },
+      { "pagePath": "pages/timeline/timeline", "text": "足迹" },
+      { "pagePath": "pages/calendar/calendar", "text": "日历" },
+      { "pagePath": "pages/stats/stats", "text": "统计" },
+      { "pagePath": "pages/mine/mine", "text": "我的" }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于定位当前位置并记录足迹"
+    }
+  },
+  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+  "sitemapLocation": "sitemap.json"
+}

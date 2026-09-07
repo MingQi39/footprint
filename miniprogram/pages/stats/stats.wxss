@@ -1,0 +1,42 @@
+.page {
+  padding: 24rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.stat {
+  padding: 36rpx 24rpx;
+  text-align: center;
+}
+
+.num {
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #1a5fb4;
+}
+
+.label {
+  margin-top: 8rpx;
+  color: #6b7280;
+}
+
+.range {
+  margin-top: 20rpx;
+  padding: 24rpx;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #eef2f7;
+}
+
+.row:last-child {
+  border-bottom: none;
+}

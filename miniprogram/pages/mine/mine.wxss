@@ -1,0 +1,45 @@
+.page {
+  padding: 24rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 20rpx;
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #eef4ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+}
+
+.name {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.sub {
+  margin-top: 8rpx;
+  color: #6b7280;
+}
+
+.actions {
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.ghost {
+  background: #eef4ff;
+  color: #1a5fb4;
+}

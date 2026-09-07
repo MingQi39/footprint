@@ -1,0 +1,10 @@
+node_modules/
+dist/
+uploads/
+.env
+.env.ecs
+*.log
+.DS_Store
+api/node_modules/
+api/dist/
+api/uploads/

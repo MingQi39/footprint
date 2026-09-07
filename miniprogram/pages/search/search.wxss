@@ -1,0 +1,49 @@
+.page {
+  padding: 24rpx;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 20rpx;
+  gap: 16rpx;
+}
+
+.input {
+  flex: 1;
+}
+
+.search-btn {
+  margin: 0;
+  background: #1a5fb4;
+  color: #fff;
+  font-size: 26rpx;
+}
+
+.loc-btn {
+  margin: 24rpx 0;
+  background: #eef4ff;
+  color: #1a5fb4;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.item {
+  padding: 24rpx;
+}
+
+.name {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.addr,
+.meta {
+  margin-top: 8rpx;
+  color: #6b7280;
+  font-size: 24rpx;
+}

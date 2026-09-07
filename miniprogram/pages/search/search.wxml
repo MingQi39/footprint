@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="search-bar card">
+    <input
+      class="input"
+      placeholder="搜索城市、景点、地点"
+      value="{{keyword}}"
+      bindinput="onInput"
+      confirm-type="search"
+      bindconfirm="onSearch"
+    />
+    <button class="search-btn" bindtap="onSearch">搜索</button>
+  </view>
+
+  <button class="loc-btn" bindtap="useCurrentLocation">使用当前位置打卡</button>
+
+  <view wx:if="{{loading}}" class="empty">搜索中...</view>
+  <view wx:elif="{{!list.length}}" class="empty">输入关键词开始搜索</view>
+
+  <view class="list">
+    <view
+      class="item card"
+      wx:for="{{list}}"
+      wx:key="name"
+      data-item="{{item}}"
+      bindtap="chooseLocation"
+    >
+      <view class="name">{{item.name}}</view>
+      <view class="addr">{{item.address}}</view>
+      <view class="meta">{{item.province}} {{item.city}}</view>
+    </view>
+  </view>
+</view>

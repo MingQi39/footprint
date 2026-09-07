@@ -1,0 +1,23 @@
+# 本地开发：MySQL + API（热更新用 npm run dev，此 compose 仅起 MySQL）
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123456}
+      MYSQL_DATABASE: footprint
+      MYSQL_USER: footprint
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-footprint123}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data:

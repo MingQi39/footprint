@@ -1,0 +1,30 @@
+<view class="page" wx:if="{{detail}}">
+  <view class="hero card">
+    <view class="name">{{detail.name}}</view>
+    <view class="addr">{{detail.address}}</view>
+    <view class="meta">{{detail.province}} {{detail.city}} {{detail.district}}</view>
+    <view class="time">{{detail.checkinAt}}</view>
+  </view>
+
+  <view class="card block" wx:if="{{detail.note}}">
+    <view class="label">备注</view>
+    <view>{{detail.note}}</view>
+  </view>
+
+  <view class="card block" wx:if="{{detail.photos.length}}">
+    <view class="label">照片</view>
+    <view class="photos">
+      <image
+        wx:for="{{detail.photos}}"
+        wx:key="id"
+        src="{{item.url}}"
+        mode="aspectFill"
+        class="photo"
+        data-url="{{item.url}}"
+        bindtap="previewPhoto"
+      />
+    </view>
+  </view>
+
+  <button class="danger" bindtap="removeRecord">删除这条记录</button>
+</view>

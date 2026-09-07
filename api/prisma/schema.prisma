@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  openid     String     @unique @db.VarChar(64)
+  unionid    String?    @db.VarChar(64)
+  nickname   String     @default("") @db.VarChar(64)
+  avatarUrl  String     @default("") @map("avatar_url") @db.VarChar(512)
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  checkins   Checkin[]
+
+  @@map("users")
+}
+
+model Checkin {
+  id         BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  userId     BigInt          @map("user_id") @db.UnsignedBigInt
+  name       String          @db.VarChar(128)
+  address    String          @default("") @db.VarChar(256)
+  lat        Decimal         @db.Decimal(10, 7)
+  lng        Decimal         @db.Decimal(10, 7)
+  country    String          @default("中国") @db.VarChar(64)
+  province   String          @default("") @db.VarChar(64)
+  city       String          @default("") @db.VarChar(64)
+  district   String          @default("") @db.VarChar(64)
+  checkinAt  DateTime        @map("checkin_at")
+  note       String?         @db.Text
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photos     CheckinPhoto[]
+
+  @@index([userId, checkinAt], map: "idx_user_checkin")
+  @@index([userId, province, city], map: "idx_user_city")
+  @@map("checkins")
+}
+
+model CheckinPhoto {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  checkinId  BigInt   @map("checkin_id") @db.UnsignedBigInt
+  url        String   @db.VarChar(512)
+  sortOrder  Int      @default(0) @map("sort_order") @db.UnsignedTinyInt
+  createdAt  DateTime @default(now()) @map("created_at")
+  checkin    Checkin  @relation(fields: [checkinId], references: [id], onDelete: Cascade)
+
+  @@index([checkinId], map: "idx_checkin")
+  @@map("checkin_photos")
+}

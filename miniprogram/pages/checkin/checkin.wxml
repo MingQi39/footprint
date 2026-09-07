@@ -1,0 +1,51 @@
+<view class="page">
+  <view class="card block">
+    <view class="label">打卡地点</view>
+    <view wx:if="{{location}}" class="location">
+      <view class="name">{{location.name}}</view>
+      <view class="addr">{{location.address}}</view>
+    </view>
+    <button wx:else class="pick-btn" bindtap="goPickLocation">选择地点</button>
+  </view>
+
+  <view class="card block">
+    <view class="label">打卡时间（可补录历史）</view>
+    <view class="row">
+      <picker mode="date" value="{{checkinDate}}" bindchange="onDateChange">
+        <view class="picker">{{checkinDate}}</view>
+      </picker>
+      <picker mode="time" value="{{checkinTime}}" bindchange="onTimeChange">
+        <view class="picker">{{checkinTime}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="card block">
+    <view class="label">备注</view>
+    <textarea
+      class="note"
+      placeholder="写点什么..."
+      maxlength="500"
+      value="{{note}}"
+      bindinput="onNoteInput"
+    />
+  </view>
+
+  <view class="card block">
+    <view class="label">照片</view>
+    <view class="photos">
+      <image
+        wx:for="{{photos}}"
+        wx:key="*this"
+        src="{{item}}"
+        mode="aspectFill"
+        class="photo"
+        data-index="{{index}}"
+        bindtap="removePhoto"
+      />
+      <view class="photo add" bindtap="choosePhotos" wx:if="{{photos.length < 9}}">+</view>
+    </view>
+  </view>
+
+  <button class="submit" loading="{{submitting}}" bindtap="submit">完成打卡</button>
+</view>

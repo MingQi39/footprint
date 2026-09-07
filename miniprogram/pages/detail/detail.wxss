@@ -1,0 +1,43 @@
+.page {
+  padding: 24rpx;
+}
+
+.hero,
+.block {
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.name {
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.addr,
+.meta,
+.time {
+  margin-top: 10rpx;
+  color: #6b7280;
+}
+
+.label {
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.photo {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 16rpx;
+}
+
+.danger {
+  background: #fee2e2;
+  color: #dc2626;
+}

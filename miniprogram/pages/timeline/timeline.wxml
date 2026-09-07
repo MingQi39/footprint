@@ -1,0 +1,28 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="empty">加载中...</view>
+  <view wx:elif="{{!list.length}}" class="empty">还没有足迹记录</view>
+
+  <view class="list">
+    <view
+      class="item card"
+      wx:for="{{list}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="openDetail"
+    >
+      <image
+        wx:if="{{item.coverPhoto}}"
+        class="cover"
+        src="{{item.coverPhoto}}"
+        mode="aspectFill"
+      />
+      <view class="content">
+        <view class="name">{{item.name}}</view>
+        <view class="meta">{{item.province}} {{item.city}}</view>
+        <view class="time">{{item.checkinAt}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="fab" bindtap="goCheckin">+</view>
+</view>
