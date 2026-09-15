@@ -3,7 +3,7 @@
     <view class="name">{{detail.name}}</view>
     <view class="addr">{{detail.address}}</view>
     <view class="meta">{{detail.province}} {{detail.city}} {{detail.district}}</view>
-    <view class="time">{{detail.checkinAt}}</view>
+    <view class="time">{{detail.checkinAtText}}</view>
   </view>
 
   <view class="card block" wx:if="{{detail.note}}">

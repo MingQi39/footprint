@@ -5,6 +5,8 @@ Page({
     keyword: '',
     list: [],
     loading: false,
+    searched: false,
+    errorMsg: '',
   },
 
   onLoad(options) {
@@ -15,7 +17,7 @@ Page({
   },
 
   onInput(e) {
-    this.setData({ keyword: e.detail.value })
+    this.setData({ keyword: e.detail.value, errorMsg: '' })
   },
 
   async onSearch() {
@@ -24,14 +26,16 @@ Page({
       return
     }
 
-    this.setData({ loading: true })
+    this.setData({ loading: true, searched: true, errorMsg: '', list: [] })
     try {
       const app = getApp()
       await app.ensureLogin()
       const data = await api.searchLocations(this.data.keyword)
       this.setData({ list: data.list || [] })
     } catch (error) {
-      wx.showToast({ title: error.message || '搜索失败', icon: 'none' })
+      const message = error.message || '搜索失败'
+      this.setData({ errorMsg: message, list: [] })
+      wx.showToast({ title: message, icon: 'none', duration: 3000 })
     } finally {
       this.setData({ loading: false })
     }
@@ -44,6 +48,29 @@ Page({
     })
   },
 
+  pickOnMap() {
+    wx.chooseLocation({
+      success: (res) => {
+        const location = {
+          name: res.name || res.address || '地图选点',
+          address: res.address,
+          lat: res.latitude,
+          lng: res.longitude,
+          province: '',
+          city: '',
+          district: '',
+        }
+        wx.navigateTo({
+          url: `/pages/checkin/checkin?location=${encodeURIComponent(JSON.stringify(location))}`,
+        })
+      },
+      fail: (error) => {
+        if (error.errMsg?.includes('cancel')) return
+        wx.showToast({ title: '请授权位置或地图选点', icon: 'none' })
+      },
+    })
+  },
+
   useCurrentLocation() {
     wx.getLocation({
       type: 'gcj02',
@@ -52,6 +79,13 @@ Page({
           const app = getApp()
           await app.ensureLogin()
           const location = await api.reverseLocation(res.latitude, res.longitude)
+          if (!location.city && !location.province) {
+            wx.showToast({
+              title: '未解析到城市，请搜索或地图选点',
+              icon: 'none',
+              duration: 2500,
+            })
+          }
           wx.navigateTo({
             url: `/pages/checkin/checkin?location=${encodeURIComponent(JSON.stringify(location))}`,
           })

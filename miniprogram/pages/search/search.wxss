@@ -21,9 +21,31 @@
 }
 
 .loc-btn {
-  margin: 24rpx 0;
+  margin: 0;
   background: #eef4ff;
   color: #1a5fb4;
+  font-size: 28rpx;
+}
+
+.action-row {
+  display: flex;
+  gap: 16rpx;
+  margin: 24rpx 0;
+}
+
+.action-row .loc-btn {
+  flex: 1;
+}
+
+.loc-btn.secondary {
+  background: #f3f6fb;
+  color: #374151;
+}
+
+.empty.error {
+  color: #dc2626;
+  padding: 0 12rpx;
+  line-height: 1.6;
 }
 
 .list {

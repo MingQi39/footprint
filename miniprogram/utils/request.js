@@ -13,6 +13,16 @@ function request(url, options = {}) {
         ...(options.header || {}),
       },
       success(res) {
+        if (res.statusCode === 401 && !options._retried) {
+          wx.removeStorageSync('token')
+          const app = getApp()
+          app
+            .login()
+            .then(() => request(url, { ...options, _retried: true }))
+            .then(resolve)
+            .catch(reject)
+          return
+        }
         if (res.statusCode === 401) {
           wx.removeStorageSync('token')
           reject(new Error('未登录或登录已过期'))
@@ -46,6 +56,10 @@ function del(url) {
   return request(url, { method: 'DELETE' })
 }
 
+function patch(url, data) {
+  return request(url, { method: 'PATCH', data })
+}
+
 function uploadFile(presign, filePath) {
   const token = wx.getStorageSync('token')
   const header = token ? { Authorization: `Bearer ${token}` } : {}
@@ -74,13 +88,44 @@ function uploadFile(presign, filePath) {
     })
   }
 
-  return Promise.reject(new Error('当前环境请使用 local 上传模式'))
+  if (presign.method === 'POST' && presign.headers) {
+    const formData = {
+      key: presign.headers.key,
+      policy: presign.headers.policy,
+      OSSAccessKeyId: presign.headers.OSSAccessKeyId,
+      Signature: presign.headers.Signature,
+      success_action_status: presign.headers.success_action_status || '200',
+    }
+    if (presign.headers['Content-Type']) {
+      formData['Content-Type'] = presign.headers['Content-Type']
+    }
+
+    return new Promise((resolve, reject) => {
+      wx.uploadFile({
+        url: presign.uploadUrl,
+        filePath,
+        name: 'file',
+        formData,
+        success(res) {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(presign.fileUrl)
+            return
+          }
+          reject(new Error(`OSS 上传失败 (${res.statusCode})`))
+        },
+        fail: reject,
+      })
+    })
+  }
+
+  return Promise.reject(new Error('不支持的上传模式'))
 }
 
 module.exports = {
   request,
   get,
   post,
+  patch,
   del,
   uploadFile,
 }

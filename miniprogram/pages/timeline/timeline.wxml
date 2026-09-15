@@ -19,10 +19,13 @@
       <view class="content">
         <view class="name">{{item.name}}</view>
         <view class="meta">{{item.province}} {{item.city}}</view>
-        <view class="time">{{item.checkinAt}}</view>
+        <view class="time">{{item.checkinAtText}}</view>
       </view>
     </view>
   </view>
+
+  <view wx:if="{{loadingMore}}" class="empty">加载更多...</view>
+  <view wx:elif="{{list.length && !hasMore}}" class="empty">没有更多了</view>
 
   <view class="fab" bindtap="goCheckin">+</view>
 </view>

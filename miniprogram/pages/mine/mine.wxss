@@ -11,6 +11,19 @@
   margin-bottom: 20rpx;
 }
 
+.avatar-btn {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  line-height: normal;
+  flex-shrink: 0;
+}
+
+.avatar-btn::after {
+  border: none;
+}
+
 .avatar {
   width: 96rpx;
   height: 96rpx;
@@ -22,14 +35,31 @@
   font-size: 44rpx;
 }
 
-.name {
+.avatar-img {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #eef4ff;
+  display: block;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.nickname-input {
   font-size: 34rpx;
   font-weight: 700;
+  height: 48rpx;
+  line-height: 48rpx;
+  color: #111827;
 }
 
 .sub {
   margin-top: 8rpx;
   color: #6b7280;
+  font-size: 24rpx;
 }
 
 .actions {

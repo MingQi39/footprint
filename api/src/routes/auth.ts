@@ -76,4 +76,41 @@ export async function authRoutes(fastify: FastifyInstance) {
       return ok(serializeBigInt(user))
     },
   )
+
+  fastify.patch(
+    '/v1/auth/profile',
+    { preHandler: [fastify.authenticate] },
+    async (request, reply) => {
+      const userId = BigInt(request.user.userId)
+      const body = request.body as { nickname?: string; avatarUrl?: string }
+      const data: { nickname?: string; avatarUrl?: string } = {}
+
+      if (body.nickname !== undefined) {
+        const nickname = body.nickname.trim()
+        if (!nickname || nickname.length > 64) {
+          return reply.code(400).send({ code: 400, message: '昵称长度应为 1-64 字' })
+        }
+        data.nickname = nickname
+      }
+
+      if (body.avatarUrl !== undefined) {
+        const avatarUrl = body.avatarUrl.trim()
+        if (!avatarUrl || avatarUrl.length > 512) {
+          return reply.code(400).send({ code: 400, message: '头像地址无效' })
+        }
+        data.avatarUrl = avatarUrl
+      }
+
+      if (!Object.keys(data).length) {
+        return reply.code(400).send({ code: 400, message: '没有可更新的字段' })
+      }
+
+      const user = await prisma.user.update({
+        where: { id: userId },
+        data,
+      })
+
+      return ok(serializeBigInt(user))
+    },
+  )
 }

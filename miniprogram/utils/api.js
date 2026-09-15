@@ -1,9 +1,10 @@
-const { get, post, del, uploadFile } = require('./request')
+const { get, post, patch, del, uploadFile } = require('./request')
 
 module.exports = {
   devLogin: (data) => post('/auth/dev-login', data),
   wxLogin: (data) => post('/auth/wx-login', data),
   getMe: () => get('/auth/me'),
+  updateProfile: (data) => patch('/auth/profile', data),
   searchLocations: (keyword, region = '全国') =>
     get('/locations/search', { keyword, region }),
   reverseLocation: (lat, lng) => get('/locations/reverse', { lat, lng }),
@@ -17,9 +18,11 @@ module.exports = {
   presignUpload: (filename, contentType = 'image/jpeg') =>
     post('/upload/presign', { filename, contentType }),
   uploadPhoto: async (filePath) => {
+    const ext = filePath.match(/\.(\w+)$/)?.[1]?.toLowerCase() || 'jpg'
+    const contentType = ext === 'png' ? 'image/png' : 'image/jpeg'
     const presign = await post('/upload/presign', {
-      filename: 'photo.jpg',
-      contentType: 'image/jpeg',
+      filename: `photo.${ext}`,
+      contentType,
     })
     return uploadFile(presign, filePath)
   },

@@ -59,10 +59,45 @@ const MOCK_LOCATIONS: LocationItem[] = [
 ]
 
 function parseRegion(adInfo?: Record<string, string>) {
-  return {
+  return normalizeRegion({
     province: adInfo?.province ?? '',
     city: adInfo?.city ?? '',
     district: adInfo?.district ?? '',
+  })
+}
+
+const MUNICIPALITIES = new Set(['北京市', '上海市', '天津市', '重庆市'])
+
+function normalizeRegion(region: {
+  province: string
+  city: string
+  district: string
+}) {
+  let { province, city, district } = region
+
+  if (!city && province && MUNICIPALITIES.has(province)) {
+    city = province
+  }
+
+  return { province, city, district }
+}
+
+function normalizeLocation(item: LocationItem): LocationItem {
+  const region = normalizeRegion({
+    province: item.province,
+    city: item.city,
+    district: item.district,
+  })
+
+  let name = item.name
+  if (name === '当前位置' && (region.city || region.district)) {
+    name = [region.city, region.district].filter(Boolean).join(' ')
+  }
+
+  return {
+    ...item,
+    ...region,
+    name,
   }
 }
 
@@ -73,12 +108,18 @@ export async function searchLocations(
   if (!keyword.trim()) return []
 
   if (!config.tencentMapKey) {
-    return MOCK_LOCATIONS.filter(
+    const list = MOCK_LOCATIONS.filter(
       (item) =>
         item.name.includes(keyword) ||
         item.city.includes(keyword) ||
         item.province.includes(keyword),
     )
+    if (!list.length) {
+      throw new Error(
+        '地图搜索未配置，请在服务端设置 TENCENT_MAP_KEY 并开启 WebServiceAPI',
+      )
+    }
+    return list
   }
 
   const url = new URL('https://apis.map.qq.com/ws/place/v1/search')
@@ -104,13 +145,15 @@ export async function searchLocations(
     throw new Error(json.message ?? '地点搜索失败')
   }
 
-  return json.data.map((item) => ({
-    name: item.title,
-    address: item.address,
-    lat: item.location.lat,
-    lng: item.location.lng,
-    ...parseRegion(item.ad_info),
-  }))
+  return json.data.map((item) =>
+    normalizeLocation({
+      name: item.title,
+      address: item.address,
+      lat: item.location.lat,
+      lng: item.location.lng,
+      ...parseRegion(item.ad_info),
+    }),
+  )
 }
 
 export async function reverseGeocode(
@@ -118,7 +161,7 @@ export async function reverseGeocode(
   lng: number,
 ): Promise<LocationItem | null> {
   if (!config.tencentMapKey) {
-    return {
+    return normalizeLocation({
       name: '当前位置',
       address: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
       lat,
@@ -126,7 +169,7 @@ export async function reverseGeocode(
       province: '',
       city: '',
       district: '',
-    }
+    })
   }
 
   const url = new URL('https://apis.map.qq.com/ws/geocoder/v1/')
@@ -147,7 +190,7 @@ export async function reverseGeocode(
   if (json.status !== 0 || !json.result) return null
 
   const component = json.result.address_component ?? {}
-  return {
+  return normalizeLocation({
     name:
       json.result.formatted_addresses?.recommend ??
       component.street ??
@@ -158,5 +201,5 @@ export async function reverseGeocode(
     province: component.province ?? '',
     city: component.city ?? '',
     district: component.district ?? '',
-  }
+  })
 }

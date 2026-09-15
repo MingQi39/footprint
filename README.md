@@ -75,6 +75,7 @@ bash scripts/push-env-ecs.sh
 | GET | `/v1/checkins/calendar` | 日历摘要 |
 | GET | `/v1/map/markers` | 地图标点 |
 | GET | `/v1/stats/summary` | 统计 |
+| PATCH | `/v1/auth/profile` | 更新昵称/头像 |
 | POST | `/v1/upload/presign` | 上传凭证 |
 
 ## 同机端口

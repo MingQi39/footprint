@@ -21,11 +21,11 @@
   <view class="card range" wx:if="{{stats}}">
     <view class="row">
       <text>首次足迹</text>
-      <text>{{stats.firstCheckinAt || '暂无'}}</text>
+      <text>{{stats.firstCheckinAtText || '暂无'}}</text>
     </view>
     <view class="row">
       <text>最近足迹</text>
-      <text>{{stats.latestCheckinAt || '暂无'}}</text>
+      <text>{{stats.latestCheckinAtText || '暂无'}}</text>
     </view>
   </view>
 </view>

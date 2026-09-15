@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const { formatDateTime } = require('../../utils/format')
 
 Page({
   data: {
@@ -16,7 +17,12 @@ Page({
       const app = getApp()
       await app.ensureLogin()
       const detail = await api.getCheckinDetail(this.id)
-      this.setData({ detail })
+      this.setData({
+        detail: {
+          ...detail,
+          checkinAtText: formatDateTime(detail.checkinAt),
+        },
+      })
     } catch (error) {
       wx.showToast({ title: error.message || '加载失败', icon: 'none' })
     } finally {

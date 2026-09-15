@@ -3,6 +3,9 @@
     <view class="label">打卡地点</view>
     <view wx:if="{{location}}" class="location">
       <view class="name">{{location.name}}</view>
+      <view class="meta" wx:if="{{location.city || location.province}}">
+        {{location.province}} {{location.city}} {{location.district}}
+      </view>
       <view class="addr">{{location.address}}</view>
     </view>
     <button wx:else class="pick-btn" bindtap="goPickLocation">选择地点</button>

@@ -11,10 +11,15 @@
     <button class="search-btn" bindtap="onSearch">搜索</button>
   </view>
 
-  <button class="loc-btn" bindtap="useCurrentLocation">使用当前位置打卡</button>
+  <view class="action-row">
+    <button class="loc-btn" bindtap="useCurrentLocation">使用当前位置</button>
+    <button class="loc-btn secondary" bindtap="pickOnMap">地图选点</button>
+  </view>
 
   <view wx:if="{{loading}}" class="empty">搜索中...</view>
-  <view wx:elif="{{!list.length}}" class="empty">输入关键词开始搜索</view>
+  <view wx:elif="{{errorMsg}}" class="empty error">{{errorMsg}}</view>
+  <view wx:elif="{{searched && !list.length}}" class="empty">未找到「{{keyword}}」相关地点</view>
+  <view wx:elif="{{!searched}}" class="empty">输入关键词开始搜索</view>
 
   <view class="list">
     <view

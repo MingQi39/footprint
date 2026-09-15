@@ -26,11 +26,12 @@
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
-    }
+    },
+    "packNpmRelationList": []
   },
   "compileType": "miniprogram",
   "libVersion": "3.7.0",
-  "appid": "touristappid",
+  "appid": "wxe90a4fe027ae338a",
   "projectname": "footprint-miniprogram",
   "condition": {},
   "simulatorPluginLibVersion": {},
