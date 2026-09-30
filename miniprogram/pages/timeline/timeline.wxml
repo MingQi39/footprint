@@ -18,7 +18,7 @@
       />
       <view class="content">
         <view class="name">{{item.name}}</view>
-        <view class="meta">{{item.province}} {{item.city}}</view>
+        <view class="meta">{{item.placeMeta}}</view>
         <view class="time">{{item.checkinAtText}}</view>
       </view>
     </view>

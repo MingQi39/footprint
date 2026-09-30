@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify'
+import { effectiveCheckinCountry } from '../utils/country.js'
 import { prisma } from '../utils/prisma.js'
 import { ok } from '../utils/response.js'
 
@@ -9,7 +10,7 @@ export async function statsRoutes(fastify: FastifyInstance) {
     async (request) => {
       const userId = BigInt(request.user.userId)
 
-      const [totalCheckins, cities, provinces, totalPhotos, range] =
+      const [totalCheckins, cities, geoRows, totalPhotos, range] =
         await Promise.all([
           prisma.checkin.count({ where: { userId } }),
           prisma.checkin.findMany({
@@ -19,8 +20,7 @@ export async function statsRoutes(fastify: FastifyInstance) {
           }),
           prisma.checkin.findMany({
             where: { userId },
-            select: { province: true },
-            distinct: ['province'],
+            select: { country: true, province: true, lat: true, lng: true },
           }),
           prisma.checkinPhoto.count({
             where: { checkin: { userId } },
@@ -32,10 +32,19 @@ export async function statsRoutes(fastify: FastifyInstance) {
           }),
         ])
 
+      const countrySet = new Set<string>()
+      const provinceSet = new Set<string>()
+      for (const row of geoRows) {
+        const country = effectiveCheckinCountry(row)
+        if (country) countrySet.add(country)
+        if (country === '中国' && row.province) provinceSet.add(row.province)
+      }
+
       return ok({
         totalCheckins,
         totalCities: cities.filter((item) => item.city).length,
-        totalProvinces: provinces.filter((item) => item.province).length,
+        totalCountries: countrySet.size,
+        totalProvinces: provinceSet.size,
         totalPhotos,
         firstCheckinAt: range._min.checkinAt,
         latestCheckinAt: range._max.checkinAt,

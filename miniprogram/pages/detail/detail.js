@@ -1,5 +1,5 @@
 const api = require('../../utils/api')
-const { formatDateTime } = require('../../utils/format')
+const { formatDateTime, formatPlaceMeta } = require('../../utils/format')
 
 Page({
   data: {
@@ -21,6 +21,7 @@ Page({
         detail: {
           ...detail,
           checkinAtText: formatDateTime(detail.checkinAt),
+          placeMeta: formatPlaceMeta(detail),
         },
       })
     } catch (error) {

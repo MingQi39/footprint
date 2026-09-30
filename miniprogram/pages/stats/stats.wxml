@@ -9,8 +9,12 @@
       <view class="label">城市数</view>
     </view>
     <view class="card stat">
+      <view class="num">{{stats.totalCountries}}</view>
+      <view class="label">国家/地区</view>
+    </view>
+    <view class="card stat">
       <view class="num">{{stats.totalProvinces}}</view>
-      <view class="label">省份数</view>
+      <view class="label">国内省份</view>
     </view>
     <view class="card stat">
       <view class="num">{{stats.totalPhotos}}</view>

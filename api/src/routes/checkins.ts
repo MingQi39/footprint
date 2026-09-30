@@ -1,4 +1,8 @@
 import type { FastifyInstance } from 'fastify'
+import {
+  effectiveCheckinCountry,
+  resolveCheckinCountry,
+} from '../utils/country.js'
 import { prisma, serializeBigInt } from '../utils/prisma.js'
 import { endOfDay, ok, parseDateInput, startOfDay } from '../utils/response.js'
 
@@ -7,14 +11,19 @@ function formatCheckinListItem(checkin: {
   name: string
   city: string
   province: string
+  country: string
+  lat: number | string | { toString(): string }
+  lng: number | string | { toString(): string }
   checkinAt: Date
   photos: { url: string }[]
 }) {
+  const country = effectiveCheckinCountry(checkin)
   return {
     id: checkin.id.toString(),
     name: checkin.name,
     city: checkin.city,
-    province: checkin.province,
+    province: country === '中国' ? checkin.province : '',
+    country,
     checkinAt: checkin.checkinAt,
     coverPhoto: checkin.photos[0]?.url ?? '',
     photoCount: checkin.photos.length,
@@ -51,7 +60,12 @@ export async function checkinRoutes(fastify: FastifyInstance) {
         address: body.address ?? '',
         lat: body.lat,
         lng: body.lng,
-        country: body.country ?? '中国',
+        country: resolveCheckinCountry({
+          country: body.country,
+          province: body.province,
+          lat: body.lat,
+          lng: body.lng,
+        }),
         province: body.province ?? '',
         city: body.city ?? '',
         district: body.district ?? '',

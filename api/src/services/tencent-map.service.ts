@@ -1,10 +1,12 @@
 import { config } from '../config/index.js'
+import { inferCountry } from '../utils/country.js'
 
 export interface LocationItem {
   name: string
   address: string
   lat: number
   lng: number
+  country: string
   province: string
   city: string
   district: string
@@ -16,6 +18,7 @@ const MOCK_LOCATIONS: LocationItem[] = [
     address: '浙江省杭州市西湖区龙井路1号',
     lat: 30.242865,
     lng: 120.148572,
+    country: '中国',
     province: '浙江省',
     city: '杭州市',
     district: '西湖区',
@@ -25,6 +28,7 @@ const MOCK_LOCATIONS: LocationItem[] = [
     address: '北京市东城区景山前街4号',
     lat: 39.916345,
     lng: 116.397155,
+    country: '中国',
     province: '北京市',
     city: '北京市',
     district: '东城区',
@@ -34,6 +38,7 @@ const MOCK_LOCATIONS: LocationItem[] = [
     address: '上海市黄浦区中山东一路',
     lat: 31.240384,
     lng: 121.490317,
+    country: '中国',
     province: '上海市',
     city: '上海市',
     district: '黄浦区',
@@ -43,6 +48,7 @@ const MOCK_LOCATIONS: LocationItem[] = [
     address: '四川省成都市青羊区金河路口宽窄巷子',
     lat: 30.663874,
     lng: 104.055731,
+    country: '中国',
     province: '四川省',
     city: '成都市',
     district: '青羊区',
@@ -52,6 +58,7 @@ const MOCK_LOCATIONS: LocationItem[] = [
     address: '广东省广州市海珠区阅江西路222号',
     lat: 23.106375,
     lng: 113.324587,
+    country: '中国',
     province: '广东省',
     city: '广州市',
     district: '海珠区',
@@ -94,9 +101,18 @@ function normalizeLocation(item: LocationItem): LocationItem {
     name = [region.city, region.district].filter(Boolean).join(' ')
   }
 
+  const country =
+    item.country?.trim() ||
+    inferCountry({
+      province: region.province,
+      lat: item.lat,
+      lng: item.lng,
+    })
+
   return {
     ...item,
     ...region,
+    country,
     name,
   }
 }
@@ -151,6 +167,7 @@ export async function searchLocations(
       address: item.address,
       lat: item.location.lat,
       lng: item.location.lng,
+      country: item.ad_info?.nation ?? '',
       ...parseRegion(item.ad_info),
     }),
   )
@@ -166,6 +183,7 @@ export async function reverseGeocode(
       address: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
       lat,
       lng,
+      country: '',
       province: '',
       city: '',
       district: '',
@@ -198,6 +216,7 @@ export async function reverseGeocode(
     address: json.result.address,
     lat: json.result.location?.lat ?? lat,
     lng: json.result.location?.lng ?? lng,
+    country: component.nation ?? '',
     province: component.province ?? '',
     city: component.city ?? '',
     district: component.district ?? '',

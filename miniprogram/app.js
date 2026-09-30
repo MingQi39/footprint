@@ -48,7 +48,11 @@ App({
 
   devLogin() {
     const { post } = require('./utils/request')
-    return post('/auth/dev-login', { nickname: '足迹用户' }).then((res) => {
+    const body = { nickname: config.devNickname || '足迹用户' }
+    if (config.devOpenid) {
+      body.openid = config.devOpenid
+    }
+    return post('/auth/dev-login', body).then((res) => {
       wx.setStorageSync('token', res.token)
       wx.setStorageSync('user', res.user)
       this.globalData.user = res.user

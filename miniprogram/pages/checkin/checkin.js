@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const { formatPlaceMeta } = require('../../utils/format')
 
 function formatDateTimeLocal(date = new Date()) {
   const pad = (n) => String(n).padStart(2, '0')
@@ -25,6 +26,7 @@ Page({
     if (options.location) {
       try {
         const location = JSON.parse(decodeURIComponent(options.location))
+        location.placeMeta = formatPlaceMeta(location)
         this.setData({ location })
       } catch (_error) {
         wx.showToast({ title: '地点数据无效', icon: 'none' })
@@ -95,6 +97,7 @@ Page({
         address: location.address,
         lat: location.lat,
         lng: location.lng,
+        country: location.country || '',
         province: location.province,
         city: location.city,
         district: location.district,

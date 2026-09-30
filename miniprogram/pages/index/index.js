@@ -1,4 +1,8 @@
 const api = require('../../utils/api')
+const {
+  collectCountriesFromMarkers,
+  effectiveCountryFromMarker,
+} = require('../../utils/country')
 
 Page({
   data: {
@@ -6,6 +10,9 @@ Page({
     longitude: 104.195397,
     scale: 4,
     markers: [],
+    includePoints: [],
+    countries: [],
+    countryText: '',
     provinces: [],
     provinceText: '',
   },
@@ -27,6 +34,13 @@ Page({
     }
   },
 
+  markerCalloutLabel(item) {
+    const country = effectiveCountryFromMarker(item)
+    const place =
+      country && country !== '中国' ? `${item.name}（${country}）` : item.name
+    return `${place} · ${item.checkinCount}次`
+  },
+
   async loadMarkers() {
     const data = await api.getMapMarkers()
     const markers = (data.markers || []).map((item, index) => ({
@@ -37,7 +51,7 @@ Page({
       width: 32,
       height: 32,
       callout: {
-        content: `${item.name} · ${item.checkinCount}次`,
+        content: this.markerCalloutLabel(item),
         display: 'BYCLICK',
         padding: 8,
         borderRadius: 8,
@@ -45,13 +59,28 @@ Page({
       _raw: item,
     }))
 
+    const includePoints = markers.map((item) => ({
+      latitude: item.latitude,
+      longitude: item.longitude,
+    }))
+
+    const rawMarkers = data.markers || []
+    let countries = data.countries || []
+    if (!countries.length && rawMarkers.length) {
+      countries = collectCountriesFromMarkers(rawMarkers)
+    }
+    const provinces = data.provinces || []
+
     this.setData({
       markers,
-      provinces: data.provinces || [],
-      provinceText: (data.provinces || []).join('、'),
+      includePoints,
+      countries,
+      countryText: countries.join('、'),
+      provinces,
+      provinceText: provinces.join('、'),
     })
 
-    if (markers.length) {
+    if (markers.length === 1) {
       this.setData({
         latitude: markers[0].latitude,
         longitude: markers[0].longitude,

@@ -10,7 +10,9 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "seed:chenze": "prisma db push && tsx scripts/import-chenze-itinerary.ts",
+    "db:backfill-countries": "tsx scripts/backfill-checkin-countries.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.2",

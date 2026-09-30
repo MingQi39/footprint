@@ -2,7 +2,7 @@
   <view class="hero card">
     <view class="name">{{detail.name}}</view>
     <view class="addr">{{detail.address}}</view>
-    <view class="meta">{{detail.province}} {{detail.city}} {{detail.district}}</view>
+    <view class="meta">{{detail.placeMeta}}</view>
     <view class="time">{{detail.checkinAtText}}</view>
   </view>
 

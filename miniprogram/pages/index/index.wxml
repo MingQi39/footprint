@@ -5,14 +5,16 @@
     longitude="{{longitude}}"
     scale="{{scale}}"
     markers="{{markers}}"
+    include-points="{{includePoints}}"
     show-location
     bindmarkertap="onMarkerTap"
   />
 
   <view class="overlay card">
     <view class="title">我的足迹</view>
-    <view class="sub" wx:if="{{provinceText}}">已点亮：{{provinceText}}</view>
-    <view class="sub" wx:else>还没有足迹，去打卡第一个地点吧</view>
+    <view class="sub" wx:if="{{countryText}}">已到访：{{countryText}}</view>
+    <view class="sub" wx:if="{{provinceText}}">国内：{{provinceText}}</view>
+    <view class="sub" wx:if="{{!countryText && !provinceText}}">还没有足迹，去打卡第一个地点吧</view>
     <view class="actions">
       <button class="btn ghost" bindtap="goSearch">搜索地点</button>
       <button class="btn primary" bindtap="goCheckin">立即打卡</button>

@@ -1,5 +1,5 @@
 const api = require('../../utils/api')
-const { formatDateTime } = require('../../utils/format')
+const { formatDateTime, formatPlaceMeta } = require('../../utils/format')
 
 const PAGE_SIZE = 20
 
@@ -7,6 +7,7 @@ function mapListItem(item) {
   return {
     ...item,
     checkinAtText: formatDateTime(item.checkinAt),
+    placeMeta: formatPlaceMeta(item),
   }
 }
 

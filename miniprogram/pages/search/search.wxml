@@ -15,6 +15,7 @@
     <button class="loc-btn" bindtap="useCurrentLocation">使用当前位置</button>
     <button class="loc-btn secondary" bindtap="pickOnMap">地图选点</button>
   </view>
+  <view class="hint">境外地点请使用地图选点</view>
 
   <view wx:if="{{loading}}" class="empty">搜索中...</view>
   <view wx:elif="{{errorMsg}}" class="empty error">{{errorMsg}}</view>

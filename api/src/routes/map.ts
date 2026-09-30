@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify'
+import { effectiveCheckinCountry } from '../utils/country.js'
 import { prisma, serializeBigInt } from '../utils/prisma.js'
 import { ok } from '../utils/response.js'
 
@@ -22,6 +23,7 @@ export async function mapRoutes(fastify: FastifyInstance) {
           name: string
           lat: number
           lng: number
+          country: string
           province: string
           city: string
           checkinCount: number
@@ -31,9 +33,14 @@ export async function mapRoutes(fastify: FastifyInstance) {
       >()
 
       const provinces = new Set<string>()
+      const countries = new Set<string>()
 
       for (const item of checkins) {
-        if (item.province) provinces.add(item.province)
+        const country = effectiveCheckinCountry(item)
+        if (country) countries.add(country)
+        if (country === '中国' && item.province) {
+          provinces.add(item.province)
+        }
 
         const key = item.city || item.name
         const lat = Number(item.lat)
@@ -46,6 +53,7 @@ export async function mapRoutes(fastify: FastifyInstance) {
             name: item.city || item.name,
             lat,
             lng,
+            country,
             province: item.province,
             city: item.city,
             checkinCount: 1,
@@ -65,6 +73,7 @@ export async function mapRoutes(fastify: FastifyInstance) {
       return ok(
         serializeBigInt({
           markers: [...cityMap.values()],
+          countries: [...countries],
           provinces: [...provinces],
         }),
       )

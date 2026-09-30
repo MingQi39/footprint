@@ -11,16 +11,26 @@ function toRequestError(payload, fallback) {
 
 function request(url, options = {}) {
   const token = wx.getStorageSync('token')
+  const method = options.method || 'GET'
+  const hasJsonBody =
+    options.data !== undefined &&
+    options.data !== null &&
+    method !== 'GET'
+
+  const header = {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.header || {}),
+  }
+  if (hasJsonBody) {
+    header['Content-Type'] = 'application/json'
+  }
+
   return new Promise((resolve, reject) => {
     wx.request({
       url: `${config.baseUrl}${url}`,
-      method: options.method || 'GET',
+      method,
       data: options.data,
-      header: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(options.header || {}),
-      },
+      header,
       success(res) {
         if (res.statusCode === 401 && !options._retried) {
           wx.removeStorageSync('token')
@@ -64,7 +74,7 @@ function post(url, data) {
 }
 
 function del(url) {
-  return request(url, { method: 'DELETE' })
+  return request(url, { method: 'DELETE', data: {} })
 }
 
 function patch(url, data) {

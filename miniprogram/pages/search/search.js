@@ -50,19 +50,34 @@ Page({
 
   pickOnMap() {
     wx.chooseLocation({
-      success: (res) => {
-        const location = {
-          name: res.name || res.address || '地图选点',
-          address: res.address,
-          lat: res.latitude,
-          lng: res.longitude,
-          province: '',
-          city: '',
-          district: '',
+      success: async (res) => {
+        wx.showLoading({ title: '解析地点…' })
+        try {
+          const app = getApp()
+          await app.ensureLogin()
+          let location = await api.reverseLocation(res.latitude, res.longitude)
+          if (!location) {
+            location = {
+              name: res.name || res.address || '地图选点',
+              address: res.address,
+              lat: res.latitude,
+              lng: res.longitude,
+              country: '',
+              province: '',
+              city: '',
+              district: '',
+            }
+          } else if (res.name && res.name !== location.name) {
+            location = { ...location, name: res.name }
+          }
+          wx.navigateTo({
+            url: `/pages/checkin/checkin?location=${encodeURIComponent(JSON.stringify(location))}`,
+          })
+        } catch (error) {
+          wx.showToast({ title: error.message || '解析失败', icon: 'none' })
+        } finally {
+          wx.hideLoading()
         }
-        wx.navigateTo({
-          url: `/pages/checkin/checkin?location=${encodeURIComponent(JSON.stringify(location))}`,
-        })
       },
       fail: (error) => {
         if (error.errMsg?.includes('cancel')) return

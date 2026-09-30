@@ -18,6 +18,23 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 async function buildApp() {
   const app = Fastify({ logger: true })
 
+  // 允许 Content-Type: application/json 且 body 为空（小程序 DELETE 常见）
+  app.addContentTypeParser(
+    'application/json',
+    { parseAs: 'string' },
+    (_req, body, done) => {
+      if (body === '' || body === undefined || body === null) {
+        done(null, {})
+        return
+      }
+      try {
+        done(null, JSON.parse(body as string))
+      } catch (error) {
+        done(error as Error, undefined)
+      }
+    },
+  )
+
   await app.register(cors, { origin: true })
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
   await app.register(jwtPlugin)

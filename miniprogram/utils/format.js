@@ -20,7 +20,18 @@ function formatDate(value) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
+function formatPlaceMeta(place) {
+  if (!place) return ''
+  const country = (place.country || '').trim()
+  const isChina = !country || country === '中国'
+  if (!isChina) {
+    return [country, place.city].filter(Boolean).join(' · ')
+  }
+  return [place.province, place.city, place.district].filter(Boolean).join(' ')
+}
+
 module.exports = {
   formatDateTime,
   formatDate,
+  formatPlaceMeta,
 }
