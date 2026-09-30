@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const { formatPlaceMeta } = require('../../utils/format')
 
 function buildCalendar(year, month, markedDates) {
   const firstDay = new Date(year, month - 1, 1)
@@ -10,6 +11,9 @@ function buildCalendar(year, month, markedDates) {
     cells.push({ empty: true })
   }
 
+  const today = new Date()
+  const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
   for (let day = 1; day <= daysInMonth; day += 1) {
     const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
     cells.push({
@@ -17,7 +21,12 @@ function buildCalendar(year, month, markedDates) {
       date,
       marked: markedDates.has(date),
       count: markedDates.get(date) || 0,
+      isToday: date === todayKey,
     })
+  }
+
+  while (cells.length % 7 !== 0) {
+    cells.push({ empty: true })
   }
 
   return cells
@@ -77,7 +86,11 @@ Page({
     this.setData({ selectedDate: date })
     try {
       const data = await api.getCheckins({ date })
-      this.setData({ dayList: data.list || [] })
+      const dayList = (data.list || []).map((item) => ({
+        ...item,
+        placeMeta: formatPlaceMeta(item),
+      }))
+      this.setData({ dayList })
     } catch (error) {
       wx.showToast({ title: error.message || '加载失败', icon: 'none' })
     }

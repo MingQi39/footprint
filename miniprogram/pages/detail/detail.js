@@ -1,5 +1,10 @@
 const api = require('../../utils/api')
-const { formatDateTime, formatPlaceMeta } = require('../../utils/format')
+const {
+  formatDateTime,
+  formatPlaceMeta,
+  shouldShowAddress,
+  formatNoteForDisplay,
+} = require('../../utils/format')
 
 Page({
   data: {
@@ -11,24 +16,39 @@ Page({
     this.loadDetail()
   },
 
-  async loadDetail() {
-    wx.showLoading({ title: '加载中' })
+  onShow() {
+    if (this.id && this._loaded) {
+      this.loadDetail({ silent: true })
+    }
+  },
+
+  async loadDetail(options = {}) {
+    const { silent = false } = options
+    if (!silent) wx.showLoading({ title: '加载中' })
     try {
       const app = getApp()
       await app.ensureLogin()
       const detail = await api.getCheckinDetail(this.id)
+      const noteSection = formatNoteForDisplay(detail.note)
       this.setData({
         detail: {
           ...detail,
           checkinAtText: formatDateTime(detail.checkinAt),
           placeMeta: formatPlaceMeta(detail),
+          showAddress: shouldShowAddress(detail.name, detail.address),
+          noteSection,
         },
       })
+      this._loaded = true
     } catch (error) {
       wx.showToast({ title: error.message || '加载失败', icon: 'none' })
     } finally {
-      wx.hideLoading()
+      if (!silent) wx.hideLoading()
     }
+  },
+
+  goEdit() {
+    wx.navigateTo({ url: `/pages/checkin/checkin?id=${this.id}` })
   },
 
   previewPhoto(e) {

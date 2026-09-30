@@ -4,7 +4,7 @@
     <view wx:if="{{location}}" class="location">
       <view class="name">{{location.name}}</view>
       <view class="meta" wx:if="{{location.placeMeta}}">{{location.placeMeta}}</view>
-      <view class="addr">{{location.address}}</view>
+      <view class="addr" wx:if="{{showAddress}}">{{location.address}}</view>
     </view>
     <button wx:else class="pick-btn" bindtap="goPickLocation">选择地点</button>
   </view>
@@ -48,5 +48,7 @@
     </view>
   </view>
 
-  <button class="submit" loading="{{submitting}}" bindtap="submit">完成打卡</button>
+  <button class="submit" loading="{{submitting}}" bindtap="submit">
+    {{isEdit ? '保存修改' : '完成打卡'}}
+  </button>
 </view>

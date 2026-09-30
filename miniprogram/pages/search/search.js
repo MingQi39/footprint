@@ -10,10 +10,21 @@ Page({
   },
 
   onLoad(options) {
+    if (options.editId) {
+      this.editId = options.editId
+    }
     if (options.city) {
       this.setData({ keyword: decodeURIComponent(options.city) })
       this.onSearch()
     }
+  },
+
+  checkinPageUrl(location) {
+    const encoded = encodeURIComponent(JSON.stringify(location))
+    if (this.editId) {
+      return `/pages/checkin/checkin?id=${this.editId}&location=${encoded}`
+    }
+    return `/pages/checkin/checkin?location=${encoded}`
   },
 
   onInput(e) {
@@ -43,9 +54,7 @@ Page({
 
   chooseLocation(e) {
     const item = e.currentTarget.dataset.item
-    wx.navigateTo({
-      url: `/pages/checkin/checkin?location=${encodeURIComponent(JSON.stringify(item))}`,
-    })
+    wx.navigateTo({ url: this.checkinPageUrl(item) })
   },
 
   pickOnMap() {
@@ -70,9 +79,7 @@ Page({
           } else if (res.name && res.name !== location.name) {
             location = { ...location, name: res.name }
           }
-          wx.navigateTo({
-            url: `/pages/checkin/checkin?location=${encodeURIComponent(JSON.stringify(location))}`,
-          })
+          wx.navigateTo({ url: this.checkinPageUrl(location) })
         } catch (error) {
           wx.showToast({ title: error.message || '解析失败', icon: 'none' })
         } finally {
@@ -101,9 +108,7 @@ Page({
               duration: 2500,
             })
           }
-          wx.navigateTo({
-            url: `/pages/checkin/checkin?location=${encodeURIComponent(JSON.stringify(location))}`,
-          })
+          wx.navigateTo({ url: this.checkinPageUrl(location) })
         } catch (error) {
           wx.showToast({ title: error.message || '定位失败', icon: 'none' })
         }

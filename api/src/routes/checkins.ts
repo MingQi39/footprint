@@ -180,6 +180,82 @@ export async function checkinRoutes(fastify: FastifyInstance) {
     return ok(serializeBigInt(checkin))
   })
 
+  fastify.patch('/v1/checkins/:id', auth, async (request, reply) => {
+    const userId = BigInt(request.user.userId)
+    const { id } = request.params as { id: string }
+    const body = request.body as {
+      name?: string
+      address?: string
+      lat?: number
+      lng?: number
+      country?: string
+      province?: string
+      city?: string
+      district?: string
+      checkinAt?: string
+      note?: string
+      photoUrls?: string[]
+    }
+
+    const existing = await prisma.checkin.findFirst({
+      where: { id: BigInt(id), userId },
+    })
+
+    if (!existing) {
+      return reply.code(404).send({ code: 404, message: '记录不存在' })
+    }
+
+    if (!body.name || body.lat == null || body.lng == null) {
+      return reply.code(400).send({ code: 400, message: '缺少地点名称或坐标' })
+    }
+
+    const lat = body.lat
+    const lng = body.lng
+    const checkinId = BigInt(id)
+    const checkin = await prisma.$transaction(async (tx) => {
+      await tx.checkin.update({
+        where: { id: checkinId },
+        data: {
+          name: body.name,
+          address: body.address ?? '',
+          lat,
+          lng,
+          country: resolveCheckinCountry({
+            country: body.country,
+            province: body.province,
+            lat,
+            lng,
+          }),
+          province: body.province ?? '',
+          city: body.city ?? '',
+          district: body.district ?? '',
+          checkinAt: parseDateInput(body.checkinAt) ?? existing.checkinAt,
+          note: body.note ?? null,
+        },
+      })
+
+      if (body.photoUrls !== undefined) {
+        await tx.checkinPhoto.deleteMany({ where: { checkinId } })
+        if (body.photoUrls.length > 0) {
+          await tx.checkinPhoto.createMany({
+            data: body.photoUrls.map((url, index) => ({
+              checkinId,
+              url,
+              sortOrder: index,
+            })),
+          })
+        }
+      }
+
+      return tx.checkin.findUniqueOrThrow({
+        where: { id: checkinId },
+        include: { photos: { orderBy: { sortOrder: 'asc' } } },
+      })
+    })
+
+    return ok(serializeBigInt(checkin))
+  })
+
   fastify.delete('/v1/checkins/:id', auth, async (request, reply) => {
     const userId = BigInt(request.user.userId)
     const { id } = request.params as { id: string }

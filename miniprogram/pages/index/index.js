@@ -10,7 +10,6 @@ Page({
     longitude: 104.195397,
     scale: 4,
     markers: [],
-    includePoints: [],
     countries: [],
     countryText: '',
     provinces: [],
@@ -24,14 +23,66 @@ Page({
     this.bootstrap()
   },
 
+  onReady() {
+    this.mapCtx = wx.createMapContext('footprintMap', this)
+  },
+
   async bootstrap() {
     const app = getApp()
     try {
       await app.ensureLogin()
+      await this.centerOnUserLocation()
       await this.loadMarkers()
+      this.moveMapToUserLocation()
     } catch (error) {
       wx.showToast({ title: error.message || '加载失败', icon: 'none' })
     }
+  },
+
+  centerOnUserLocation() {
+    return new Promise((resolve) => {
+      wx.getLocation({
+        type: 'gcj02',
+        success: (res) => {
+          this.setData({
+            latitude: res.latitude,
+            longitude: res.longitude,
+            scale: 14,
+          })
+          resolve(true)
+        },
+        fail: () => resolve(false),
+      })
+    })
+  },
+
+  moveMapToUserLocation() {
+    if (!this.mapCtx) return
+    this.mapCtx.moveToLocation({
+      fail: () => {},
+    })
+  },
+
+  fitAllFootprints() {
+    const { markers } = this.data
+    if (!markers.length) {
+      wx.showToast({ title: '还没有足迹', icon: 'none' })
+      return
+    }
+    if (!this.mapCtx) {
+      this.mapCtx = wx.createMapContext('footprintMap', this)
+    }
+    const points = markers.map((item) => ({
+      latitude: item.latitude,
+      longitude: item.longitude,
+    }))
+    this.mapCtx.includePoints({
+      points,
+      padding: [72, 48, 220, 48],
+      fail: () => {
+        wx.showToast({ title: '无法调整地图视野', icon: 'none' })
+      },
+    })
   },
 
   markerCalloutLabel(item) {
@@ -59,11 +110,6 @@ Page({
       _raw: item,
     }))
 
-    const includePoints = markers.map((item) => ({
-      latitude: item.latitude,
-      longitude: item.longitude,
-    }))
-
     const rawMarkers = data.markers || []
     let countries = data.countries || []
     if (!countries.length && rawMarkers.length) {
@@ -73,20 +119,11 @@ Page({
 
     this.setData({
       markers,
-      includePoints,
       countries,
       countryText: countries.join('、'),
       provinces,
       provinceText: provinces.join('、'),
     })
-
-    if (markers.length === 1) {
-      this.setData({
-        latitude: markers[0].latitude,
-        longitude: markers[0].longitude,
-        scale: 8,
-      })
-    }
   },
 
   onMarkerTap(e) {

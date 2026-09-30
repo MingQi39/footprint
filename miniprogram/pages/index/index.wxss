@@ -8,6 +8,32 @@
   height: 100%;
 }
 
+.map-tools {
+  position: absolute;
+  top: calc(24rpx + env(safe-area-inset-top));
+  right: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  z-index: 2;
+}
+
+.map-tool-btn {
+  margin: 0;
+  padding: 0 24rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  font-size: 24rpx;
+  color: #1a5fb4;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 32rpx;
+  box-shadow: 0 8rpx 24rpx rgba(26, 95, 180, 0.12);
+}
+
+.map-tool-btn::after {
+  border: none;
+}
+
 .overlay {
   position: absolute;
   left: 24rpx;

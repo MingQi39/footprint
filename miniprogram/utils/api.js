@@ -12,6 +12,7 @@ module.exports = {
   getCheckins: (params) => get('/checkins', params),
   getCalendar: (year, month) => get('/checkins/calendar', { year, month }),
   getCheckinDetail: (id) => get(`/checkins/${id}`),
+  updateCheckin: (id, data) => patch(`/checkins/${id}`, data),
   deleteCheckin: (id) => del(`/checkins/${id}`),
   getMapMarkers: () => get('/map/markers'),
   getStats: () => get('/stats/summary'),

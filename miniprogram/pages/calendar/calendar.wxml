@@ -5,22 +5,32 @@
     <view class="nav" data-delta="1" bindtap="changeMonth">›</view>
   </view>
 
-  <view class="weekdays">
-    <text wx:for="{{['日','一','二','三','四','五','六']}}" wx:key="*this">{{item}}</text>
-  </view>
+  <view class="calendar card">
+    <view class="weekdays">
+      <text wx:for="{{['日','一','二','三','四','五','六']}}" wx:key="*this" class="weekday">{{item}}</text>
+    </view>
 
-  <view class="grid card">
-    <view
-      wx:for="{{cells}}"
-      wx:key="index"
-      class="cell {{item.empty ? 'empty' : ''}} {{selectedDate === item.date ? 'selected' : ''}}"
-      data-date="{{item.date}}"
-      bindtap="selectDay"
-    >
-      <block wx:if="{{!item.empty}}">
-        <text>{{item.day}}</text>
-        <view wx:if="{{item.marked}}" class="dot">{{item.count}}</view>
-      </block>
+    <view class="grid">
+      <view
+        wx:for="{{cells}}"
+        wx:key="index"
+        class="cell-wrap"
+      >
+        <view
+          wx:if="{{!item.empty}}"
+          class="cell {{selectedDate === item.date ? 'selected' : ''}} {{item.isToday ? 'today' : ''}} {{item.marked ? 'marked' : ''}}"
+          data-date="{{item.date}}"
+          bindtap="selectDay"
+        >
+          <text class="day-num">{{item.day}}</text>
+          <view
+            wx:if="{{item.marked}}"
+            class="mark {{item.count > 1 ? 'mark-badge' : 'mark-dot'}}"
+          >
+            <text wx:if="{{item.count > 1}}" class="mark-count">{{item.count}}</text>
+          </view>
+        </view>
+      </view>
     </view>
   </view>
 
@@ -35,7 +45,7 @@
       bindtap="openDetail"
     >
       <view class="name">{{item.name}}</view>
-      <view class="meta">{{item.city}} · {{item.photoCount}} 张照片</view>
+      <view class="meta">{{item.placeMeta}} · {{item.photoCount}} 张照片</view>
     </view>
   </view>
 </view>

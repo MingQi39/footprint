@@ -1,14 +1,19 @@
 <view class="page">
   <map
+    id="footprintMap"
     class="map"
     latitude="{{latitude}}"
     longitude="{{longitude}}"
     scale="{{scale}}"
     markers="{{markers}}"
-    include-points="{{includePoints}}"
     show-location
     bindmarkertap="onMarkerTap"
   />
+
+  <view class="map-tools" wx:if="{{markers.length}}">
+    <button class="map-tool-btn" bindtap="fitAllFootprints">看全足迹</button>
+    <button class="map-tool-btn" bindtap="moveMapToUserLocation">我的位置</button>
+  </view>
 
   <view class="overlay card">
     <view class="title">我的足迹</view>

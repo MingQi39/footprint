@@ -1,14 +1,23 @@
 <view class="page" wx:if="{{detail}}">
   <view class="hero card">
+    <view class="place-tag" wx:if="{{detail.placeMeta}}">{{detail.placeMeta}}</view>
     <view class="name">{{detail.name}}</view>
-    <view class="addr">{{detail.address}}</view>
-    <view class="meta">{{detail.placeMeta}}</view>
-    <view class="time">{{detail.checkinAtText}}</view>
+    <view class="addr" wx:if="{{detail.showAddress}}">{{detail.address}}</view>
+    <view class="time-row">
+      <text class="time-label">打卡时间</text>
+      <text class="time-value">{{detail.checkinAtText}}</text>
+    </view>
   </view>
 
-  <view class="card block" wx:if="{{detail.note}}">
+  <view class="card block" wx:if="{{detail.noteSection.hasContent}}">
     <view class="label">备注</view>
-    <view>{{detail.note}}</view>
+    <view class="note-body" wx:if="{{detail.noteSection.body}}">{{detail.noteSection.body}}</view>
+    <view class="note-meta" wx:if="{{detail.noteSection.meta.length}}">
+      <view class="note-row" wx:for="{{detail.noteSection.meta}}" wx:key="label">
+        <text class="note-k">{{item.label}}</text>
+        <text class="note-v">{{item.value}}</text>
+      </view>
+    </view>
   </view>
 
   <view class="card block" wx:if="{{detail.photos.length}}">
@@ -26,5 +35,8 @@
     </view>
   </view>
 
-  <button class="danger" bindtap="removeRecord">删除这条记录</button>
+  <view class="actions">
+    <button class="action-btn primary" bindtap="goEdit">编辑足迹</button>
+    <button class="action-btn danger" bindtap="removeRecord">删除这条记录</button>
+  </view>
 </view>

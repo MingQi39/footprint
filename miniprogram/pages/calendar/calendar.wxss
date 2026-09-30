@@ -28,50 +28,114 @@
   font-weight: 700;
 }
 
-.weekdays,
-.grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-}
-
-.weekdays {
-  margin-bottom: 12rpx;
-  text-align: center;
-  color: #8a94a6;
-}
-
-.grid {
-  padding: 12rpx;
+.calendar {
+  padding: 20rpx 12rpx 16rpx;
   margin-bottom: 24rpx;
 }
 
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 8rpx;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 24rpx;
+  color: #9ca3af;
+  line-height: 40rpx;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 8rpx;
+}
+
+.cell-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+}
+
 .cell {
+  width: 88rpx;
   height: 88rpx;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 12rpx;
-  position: relative;
+  gap: 6rpx;
+  border-radius: 16rpx;
+  color: #1f2937;
 }
 
-.cell.selected {
-  background: #eef4ff;
+.day-num {
+  font-size: 30rpx;
+  line-height: 1;
+  font-weight: 500;
+}
+
+.mark {
+  flex-shrink: 0;
+  background: #3584e4;
+}
+
+.mark-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+}
+
+.mark-badge {
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
+  border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mark-count {
+  color: #fff;
+  font-size: 20rpx;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.cell.today .day-num {
   color: #1a5fb4;
   font-weight: 700;
 }
 
-.dot {
-  position: absolute;
-  bottom: 8rpx;
-  min-width: 28rpx;
-  height: 28rpx;
-  padding: 0 8rpx;
-  border-radius: 999rpx;
-  background: #1a5fb4;
+.cell.today:not(.selected) {
+  box-shadow: inset 0 0 0 2rpx #93c5fd;
+}
+
+.cell.selected {
+  background: linear-gradient(135deg, #1a5fb4, #3584e4);
   color: #fff;
-  font-size: 18rpx;
-  line-height: 28rpx;
+  box-shadow: 0 8rpx 20rpx rgba(26, 95, 180, 0.28);
+}
+
+.cell.selected .day-num {
+  color: #fff;
+  font-weight: 700;
+}
+
+.cell.selected .mark-dot {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.cell.selected .mark-badge {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.cell.selected .mark-count {
+  color: #1a5fb4;
 }
 
 .section-title {
@@ -94,4 +158,10 @@
   margin-top: 8rpx;
   color: #6b7280;
   font-size: 24rpx;
+}
+
+.empty {
+  color: #9ca3af;
+  font-size: 26rpx;
+  padding: 24rpx 0;
 }
