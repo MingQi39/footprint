@@ -70,6 +70,13 @@ server {
 
 小程序 `miniprogram/config.js` 的 `baseUrl` 改为 `https://footprint.houmq.cn/v1`（或你的实际域名）。
 
+**TLS**：须为 `footprint.houmq.cn` 单独签发证书（勿仅复用 `houmq.cn` 多域证书，SAN 不含该子域时微信小程序会报「加载失败」）：
+
+```bash
+sudo certbot certonly --nginx -d footprint.houmq.cn
+# Nginx 中 ssl_certificate 指向 /etc/letsencrypt/live/footprint.houmq.cn/
+```
+
 ## 与 bf-kitchen 同机
 
 | 项目 | 端口 | 数据目录 | Compose 项目名 |

@@ -1,5 +1,14 @@
 const config = require('../config')
 
+function toRequestError(payload, fallback) {
+  if (payload instanceof Error) return payload
+  if (payload && typeof payload === 'object') {
+    const message = payload.message || payload.errMsg
+    if (message) return new Error(message)
+  }
+  return new Error(fallback)
+}
+
 function request(url, options = {}) {
   const token = wx.getStorageSync('token')
   return new Promise((resolve, reject) => {
@@ -34,12 +43,14 @@ function request(url, options = {}) {
             resolve(body.data)
             return
           }
-          reject(body || new Error('请求失败'))
+          reject(toRequestError(body, '请求失败'))
           return
         }
-        reject(body || new Error('请求失败'))
+        reject(toRequestError(body, '请求失败'))
       },
-      fail: reject,
+      fail(err) {
+        reject(toRequestError(err, '网络请求失败'))
+      },
     })
   })
 }
